@@ -4,20 +4,21 @@ use diagnostics;
 use strict;
 
 foreach my $file ($ARGV[0]) { 
-	extensionChecker ($file);
+#	extensionChecker ($file);
 	hashbang($file);
+	removeSemiColons($file);
 }
 
-sub extensionChecker { 
-	my $fileToCheck = $_[0];
-	my $extension = "";
-	$extension .= $fileToCheck; 
-	$extension =~ s/.*\.//g;
-	if (!$extension eq "pl") { 
-		print "Wrong extension \n", "Usage: $0 fileName.pl\n" if $extension ne "pl";
-		exit(1);
-	}
-}
+#sub extensionChecker { 
+#	my $fileToCheck = $_[0];
+#	my $extension = "";
+#	$extension .= $fileToCheck; 
+#	$extension =~ s/.*\.//g;
+#	if (!$extension eq "pl") { 
+#		print "Wrong extension \n", "Usage: $0 fileName.pl\n" if $extension ne "pl";
+#		exit(1);
+#	}
+#}
 
 sub hashbang { 
 	my $hb = shift;
@@ -33,4 +34,17 @@ sub hashbang {
 	close O;
 }
 
+sub removeSemiColons { 
+	my $sm = shift;
+	open F, $sm or die "Can't open $sm.\n";
+	$sm =~ s/\..*//;
+#	open O, "> $hb.py";
 
+	foreach my $line (<F>) { 
+		if ($line =~ /\;$/) { 
+			print "Yes\n";
+		}
+	close F;
+	close O;
+	}
+}

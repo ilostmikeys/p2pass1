@@ -5,10 +5,10 @@ DATE	START	END		ACTIVITY		COMMENTS
 10/09	7:40	7:41	Writing			Created diary.txt file 
 16/09	10:55	11:30	Coding			Started intial version of p2p -> s0
 18/09   11:00	11:20	Coding			Wrote extension checker
-21/09	1:00			Coding&Debug	Created functions for extension checking
+21/09	1:00	1:30	Coding&Debug	Created functions for extension checking
 										Fixed some function parsing bugs
 21/09	1:10 	1:15	Test files		Created some test files
-
+21/98	12:30	12:45	Coding			Writing semi colon remover
 
 
 
