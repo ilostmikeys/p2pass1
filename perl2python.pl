@@ -10,7 +10,6 @@ foreach my $file ($ARGV[0]) {
 
 sub extensionChecker { 
 	my $fileToCheck = $_[0];
-	print "$fileToCheck\n";
 	my $extension = "";
 	$extension .= $fileToCheck; 
 	$extension =~ s/.*\.//g;
@@ -22,9 +21,16 @@ sub extensionChecker {
 
 sub hashbang { 
 	my $hb = shift;
-	if ($hb =~ /#!\/usr\/bin\/python/) { 
-		print "Hashbang";
+	open F, $hb or die "Can't open $hb.\n";
+	$hb =~ s/\..*//;
+	open O, "> $hb.py";
+	foreach my $line (<F>) { 
+		if ($line =~ /#!\/usr\/bin\/perl/) { 
+			print O "#!\/usr\/bin\/python\n";
+		}
 	}
+	close F;
+	close O;
 }
 
 
