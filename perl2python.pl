@@ -4,47 +4,73 @@ use diagnostics;
 use strict;
 
 foreach my $file ($ARGV[0]) { 
-#	extensionChecker ($file);
-	hashbang($file);
-	removeSemiColons($file);
+	open IN, $file or die "Can't open $file\n";
+	
+	my @file = ();
+	foreach my $line (<IN>) { 
+		push (@file, $line);
+	}
+	close IN;
+
+	my $newFile .= $file;
+	$newFile =~ s/\..*/.py/;
+	open OUT, "> $newFile";
+
+	changeHashbang(@file);
+	removeNewLinesAndSemiColons(@file);
+#	my @newFile = (removeNewLines(@file));
+	
+#	print @newFile;
+#	removeSemiColons(@newFile);
+	
+	close IN;
+	close OUT;
+
 }
 
-#sub extensionChecker { 
-#	my $fileToCheck = $_[0];
-#	my $extension = "";
-#	$extension .= $fileToCheck; 
-#	$extension =~ s/.*\.//g;
-#	if (!$extension eq "pl") { 
-#		print "Wrong extension \n", "Usage: $0 fileName.pl\n" if $extension ne "pl";
-#		exit(1);
-#	}
-#}
-
-sub hashbang { 
-	my $hb = shift;
-	open F, $hb or die "Can't open $hb.\n";
-	$hb =~ s/\..*//;
-	open O, "> $hb.py";
-	foreach my $line (<F>) { 
+sub changeHashbang { 
+	print "Changing hashbang line...\n";
+	my @file = @_;
+	foreach my $line (@file) { 
 		if ($line =~ /#!\/usr\/bin\/perl/) { 
-			print O "#!\/usr\/bin\/python\n";
+			print "Hashbang\n";
+			print OUT "#!\/usr\/bin\/python\n";
 		}
 	}
-	close F;
-	close O;
+	print "Hashbang line changed!\n";
 }
 
-sub removeSemiColons { 
-	my $sm = shift;
-	open F, $sm or die "Can't open $sm.\n";
-	$sm =~ s/\..*//;
-#	open O, "> $hb.py";
-
-	foreach my $line (<F>) { 
-		if ($line =~ /\;$/) { 
-			print "Yes\n";
+sub removeNewLinesAndSemiColons { 
+	print "Removing \\n and semi colons\n";
+	my @file = @_;
+	foreach my $line (@file) { 
+		if ($line =~ /\\n";/) { 
+			$line =~ s/\\n";/"/g;
+			print OUT "$line";
 		}
-	close F;
-	close O;
 	}
+	print "\\n's and semi colons removed\n";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
