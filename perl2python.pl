@@ -17,12 +17,10 @@ foreach my $file ($ARGV[0]) {
 	open OUT, "> $newFile";
 
 	changeHashbang(@file);
-	removeNewLinesAndSemiColons(@file);
-#	my @newFile = (removeNewLines(@file));
-	
-#	print @newFile;
-#	removeSemiColons(@newFile);
-	
+	my @newFile = removeNewLinesAndSemiColons(@file);
+	print @newFile;
+	changeVariables(@newFile);
+
 	close IN;
 	close OUT;
 
@@ -41,17 +39,34 @@ sub changeHashbang {
 }
 
 sub removeNewLinesAndSemiColons { 
-	print "Removing \\n and semi colons\n";
+	print "Removing \\n and semi colons...\n";
 	my @file = @_;
 	foreach my $line (@file) { 
-		if ($line =~ /\\n";/) { 
+		if ($line =~ /^\n/) {  # if the line just contains a new line 
+			print OUT "$line"; # print the new line to OUT
+		} elsif ($line =~ /\;$/) { 
+			$line =~ s/\;//g;
+			print OUT "$line";
+		} elsif ($line =~ /\\n";/) { 
 			$line =~ s/\\n";/"/g;
 			print OUT "$line";
 		}
 	}
 	print "\\n's and semi colons removed\n";
+	return @file;
 }
 
+sub changeVariables { 
+	print "Changing variables...\n";
+	my @file = @_;
+	foreach my $line (@file) { 
+		if ($line =~ /^\$/g) { 
+			$line =~ s/^\$//g;
+			print OUT "$line";
+		}
+	}
+	print "Variables changed!\n";
+}
 
 
 
