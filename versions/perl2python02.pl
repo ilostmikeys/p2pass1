@@ -3,7 +3,7 @@
 use diagnostics;
 use strict;
 
-# array which should contain the final converted program
+# array which should contain the final python converted program
 my @pythonArray = (); 
 
 # changes the hashbang line of the perl program to the python equivalent
@@ -19,38 +19,46 @@ sub changeHashbang {
 	print "Hashbang line changed!\n\n";
 }
 
-# removes new lines and semi colons
+sub removeSemiColons { 
+	print "Removing SemiColons...\n";
+
+	my $line = $_[0];
+	if ($line =~ /\;$/) { 
+		$line =~ s/\;$//;	
+		push(@pythonArray, $line);
+	}
+
+	print "SemiColons removed\n\n";
+}
+
 # removes new lines \n from the end of any print statments 
 # it also takes into account whether if it is just a new line as white space 
     # it will print a \n as is 
-sub removeNewLinesAndSemiColons { 
+sub removeNewLines { 
 	print "Removing \\n... \n";
 	
 	my $line = $_[0];
-	if ($line =~ /\\n";/) { 
-		$line =~ s/\\n";/"/;
-		push (@pythonArray, $line);
-	} elsif ($line =~ /^\n$/) { 
-		push (@pythonArray, $line);
-	} elsif ($line =~ /;$/) { 
-		$line =~ s/;$/;/;
-		push (@pythonArray, $line);
-	}
+	print "Line: $line";
 	
+#	} elsif ($line =~ /\n$/) { 
+#		my $new = "\n";
+#		push (@pythonArray, $new);
+#	} elsif ($line =~ /^\n$/) { 
+#		my $new = "\n";
+#		push (@pythonArray, $new);
+#	if ($line =~ /\\n\"/) { 
+#		print "found new line at end of \" \n";
+#		my $newLine = $line;
+#		$newLine =~ s/\\n\"/"/g;
+#		push(@pythonArray, $newLine);
+#	} elsif ($line =~ /\n$/) { 
+#		my $new = "\n";
+#		push (@pythonArray, $new);
+#	} elsif ($line =~ /^\n$/) { 
+#		my $new = "\n";
+#		push (@pythonArray, $new);
+#	}
 	print "\\n removed\n\n";
-}
-
-sub changeVariables { 
-	print "Change variables...\n";
-
-	my $line = $_[0];
-
-	if ($line =~ /^\$/) { 
-		print "Here!\n";
-		$line =~ s/^\$//g;
-		push (@pythonArray, $line);
-	}
-	print "Variables changed\n\n"; 
 }
 
 foreach my $file ($ARGV[0]) { 
@@ -71,12 +79,8 @@ foreach my $file ($ARGV[0]) {
 	open OUT, "> $newFile";
 
 	changeHashbang(@file);
-	foreach my $i (1..$#file) { 
-		if ($file[$i] =~ /^\$/) { 
-		changeVariables($file[$i]);
-		} else { 
-		removeNewLinesAndSemiColons($file[$i]);
-	}
+	foreach my $line (@file) {
+			removeNewLines($line);
 	}
 
 	print "\nStart Python Array: \n";
@@ -88,6 +92,7 @@ foreach my $file ($ARGV[0]) {
 		print OUT $line;
 	}
 
+	close IN;
 	close OUT;
 
 }
