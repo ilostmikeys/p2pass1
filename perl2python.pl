@@ -5,18 +5,48 @@ use strict;
 
 # array which should contain the final converted program
 my @pythonArray = (); 
+# array which should contain the original perl file
+my @perlFile = ();
+
+# copies an array to another by first emptying the main one to the spare
+sub arrayCopy { 
+	@perlFile = ();
+	@perlFile = @pythonArray;
+	@pythonArray = ();
+}
 
 # changes the hashbang line of the perl program to the python equivalent
 sub changeHashbang { 
 	print "Changing hashbang line...\n";
+
 	my @file = @_;
-	foreach my $line (@file) { 
+	while (@file > 0) { 
+		my $line = shift @file;
 		if ($line =~ /#!\/usr\/bin\/perl -w/) { 
-			$line =~ s/$line/#!\/usr\/bin\/python/;
+			$line =~ s/#!\/usr\/bin\/perl -w/#!\/usr\/bin\/python/;
+			push (@pythonArray, $line);
+		} else { 
 			push (@pythonArray, $line);
 		}
 	}
+
 	print "Hashbang line changed!\n\n";
+}
+
+sub removeSemiColons { 
+	print "Removing semi colons...\n";
+
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
+		if ($line =~ /;$/) { 
+			$line =~ s/;$//;
+			push (@pythonArray, $line);
+		} else { 
+			push (@pythonArray, $line);
+		}
+	}
+	print "Removed semi colons\n";
 }
 
 # removes new lines and semi colons
@@ -26,16 +56,6 @@ sub changeHashbang {
 sub removeNewLinesAndSemiColons { 
 	print "Removing \\n... \n";
 	
-	my $line = $_[0];
-	if ($line =~ /\\n";/) { 
-		$line =~ s/\\n";/"/;
-		push (@pythonArray, $line);
-	} elsif ($line =~ /^\n$/) { 
-		push (@pythonArray, $line);
-	} elsif ($line =~ /;$/) { 
-		$line =~ s/;$/;/;
-		push (@pythonArray, $line);
-	}
 	
 	print "\\n removed\n\n";
 }
@@ -43,48 +63,38 @@ sub removeNewLinesAndSemiColons {
 sub changeVariables { 
 	print "Change variables...\n";
 
-	my $line = $_[0];
 
-	if ($line =~ /^\$/) { 
-		print "Here!\n";
-		$line =~ s/^\$//g;
-		push (@pythonArray, $line);
-	}
+
 	print "Variables changed\n\n"; 
 }
 
 foreach my $file ($ARGV[0]) { 
 	open IN, $file or die "Can't open $file\n";
 	
-	my @file = ();
 	foreach my $line (<IN>) { 
-		push (@file, $line);
+		push (@perlFile, $line);
 	}
 	close IN;
 
 	print "Start File Array: \n";
-	print @file;
+	print @perlFile;
 	print "End File Array\n\n";
 
 	my $newFile .= $file;
 	$newFile =~ s/\..*/.py/;
 	open OUT, "> $newFile";
 
-	changeHashbang(@file);
-	foreach my $i (1..$#file) { 
-		if ($file[$i] =~ /^\$/) { 
-		changeVariables($file[$i]);
-		} else { 
-		removeNewLinesAndSemiColons($file[$i]);
-	}
-	}
+	changeHashbang(@perlFile);
+	arrayCopy;
+	removeSemiColons(@perlFile);
+	arrayCopy;
 
 	print "\nStart Python Array: \n";
-	print @pythonArray;
+	print @perlFile;
 	print "End Python Array\n\n";
 
 	# prints out to the filehandle
-	foreach my $line (@pythonArray) { 
+	foreach my $line (@perlFile) { 
 		print OUT $line;
 	}
 
