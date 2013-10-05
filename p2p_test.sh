@@ -1,7 +1,7 @@
 #!/bin/sh
 
-# test to make sure that there is at least two argument provided 
-if test $# -lt 2
+# test to make sure that there is at least one argument provided 
+if test $# -lt 1
 then	
 	echo "Not enough arugments"
 	echo "Usage: $0 dataFile"
@@ -15,22 +15,23 @@ then
 	exit 1
 fi
 
-if test ! -f $2 
-then 
-	echo "The file $2 does not exist"
-	exit 1
-fi
+pythonName=`echo $1 | sed "s/pl/py/"`
+echo $pythonName
 
-# if the above is true, perform both pastes and then diff
-echo "Runinng original perl program"
-perl $1 > originalPerlOutput
-echo "Running pastes.pl on $file"a
-python $2
-diff pasteOutput myPaste 
-if test $? -eq 0 
-then
-	echo "Test Succeeded - output of ./pastes.pl matched paste"
-else 
-	echo "Test Failed - output of ./pastes.pl did not match paste"
-fi
+# if the above is true, run the original perl code and the translated
+# python code with a diff
+	echo "Runinng original perl file..."
+	perl $1> outputPerl
+	echo "Running perl2python...."
+	perl perl2python.pl $1 
+	python $pythonName > outputPython
+	diff outputPerl outputPython
+	if test $? -eq 0 
+	then
+		echo "Test Succeeded - output of ./perl2python.pl matched original"
+	else 
+		echo "Test Failed - output of ./perl2python.pl did not match original"
+	fi
+		
+
 

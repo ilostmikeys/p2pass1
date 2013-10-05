@@ -17,7 +17,7 @@ sub arrayCopy {
 
 # changes the hashbang line of the perl program to the python equivalent
 sub changeHashbang { 
-#	print "Changing hashbang line...\n";
+	print "Changing hashbang line...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
@@ -30,11 +30,11 @@ sub changeHashbang {
 		}
 	}
 
-#	print "Hashbang line changed!\n\n";
+	print "Hashbang line changed!\n\n";
 }
 
 sub removeSemiColons { 
-#	print "Removing semi colons...\n";
+	print "Removing semi colons...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
@@ -46,7 +46,7 @@ sub removeSemiColons {
 			push (@pythonArray, $line);
 		}
 	}
-#	print "Removed semi colons\n";
+	print "Removed semi colons\n";
 }
 
 # removes new lines and semi colons
@@ -54,18 +54,18 @@ sub removeSemiColons {
 # it also takes into account whether if it is just a new line as white space 
     # it will print a \n as is 
 sub removeNewLinesAndSemiColons { 
-#	print "Removing \\n... \n";
+	print "Removing \\n... \n";
 	
 	
-#	print "\\n removed\n\n";
+	print "\\n removed\n\n";
 }
 
 sub changeVariables { 
-#	print "Change variables...\n";
+	print "Change variables...\n";
 
 
 
-#	print "Variables changed\n\n"; 
+	print "Variables changed\n\n"; 
 }
 
 foreach my $file ($ARGV[0]) { 
@@ -76,9 +76,9 @@ foreach my $file ($ARGV[0]) {
 	}
 	close IN;
 
-#	print "Start File Array: \n";
-#	print @perlFile;
-#	print "End File Array\n\n";
+	print "Start File Array: \n";
+	print @perlFile;
+	print "End File Array\n\n";
 
 	my $newFile .= $file;
 	$newFile =~ s/\..*/.py/;
@@ -89,9 +89,9 @@ foreach my $file ($ARGV[0]) {
 	removeSemiColons(@perlFile);
 	arrayCopy;
 
-#	print "\nStart Python Array: \n";
-#	print @perlFile;
-#	print "End Python Array\n\n";
+	print "\nStart Python Array: \n";
+	print @perlFile;
+	print "End Python Array\n\n";
 
 	# prints out to the filehandle
 	foreach my $line (@perlFile) { 

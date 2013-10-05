@@ -1,0 +1,20 @@
+Start File Array: 
+#!/usr/bin/perl -w 
+
+print "Hello, World\n";
+
+End File Array
+
+Changing hashbang line...
+Hashbang line changed!
+
+Removing semi colons...
+Removed semi colons
+
+Start Python Array: 
+#!/usr/bin/python 
+
+print "Hello, World\n"
+
+End Python Array
+
