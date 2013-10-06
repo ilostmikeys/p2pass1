@@ -17,7 +17,7 @@ sub arrayCopy {
 
 # changes the hashbang line of the perl program to the python equivalent
 sub changeHashbang { 
-#	print "Changing hashbang line...\n";
+	print "Changing hashbang line...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
@@ -30,11 +30,11 @@ sub changeHashbang {
 		}
 	}
 
-#	print "Hashbang line changed!\n\n";
+	print "Hashbang line changed!\n\n";
 }
 
 sub removeSemiColons { 
-#	print "Removing semi colons...\n";
+	print "Removing semi colons...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
@@ -46,26 +46,77 @@ sub removeSemiColons {
 			push (@pythonArray, $line);
 		}
 	}
-#	print "Removed semi colons\n";
+	print "Removed semi colons\n";
 }
 
-# removes new lines and semi colons
-# removes new lines \n from the end of any print statments 
-# it also takes into account whether if it is just a new line as white space 
-    # it will print a \n as is 
-sub removeNewLinesAndSemiColons { 
-#	print "Removing \\n... \n";
-	
-	
-#	print "\\n removed\n\n";
+sub removeNewLines { 
+	print "Removing new lines...\n";
+
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
+		if ($line =~ /^\n$/) { 
+			push (@pythonArray, $line);
+		} elsif ($line =~ /\\n"$/) { 
+			$line =~ s/\\n"$/"/;
+			push (@pythonArray, $line);
+		} else { 
+			push (@pythonArray, $line);
+		}
+	}
+	print "Removed new lines...\n";
 }
 
 sub changeVariables { 
-#	print "Change variables...\n";
+	print "Changing Variables...\n";
+	
+	# save array passed in into local variable
+	my @file = @_;
+	# while the size of the array is greater than 0
+	while (@file > 0) { 
+		# shift off the first element and save it into variable
+		my $line = shift @file;
+		# if there is a $ at the beginning of the line then it's a perl variable
+		if ($line =~ /^\$/) { 
+			# replace the $ with nothing
+			$line =~ s/^\$//;
+			# push it back onto the array
+			push(@pythonArray, $line);
+		# this is the case where a variable is in a print statement
+		} elsif ($line =~ /print/) { 
+			# save into a new variable for editing (might be unneccessary)
+			my $printLine .= $line;
+			if ($printLine =~ /\$/) { 
+				# we split the line so that we can replace the " and insert ()
+				my @lineArray = split (' ', $printLine);
+				foreach my $i (0..$#lineArray) { 
+					# we look for $ and replace it with a (
+					if ($lineArray[$i] =~ /\$/) { 
+						$lineArray[$i] =~ s/\$/(/;
+						# splice the array at the point +1 after we find the $
+						# and then add a )
+						splice @lineArray, $i+1, 0, ')';
+					} 
+					# replaces all " with nothing
+					if ($lineArray[$i] =~ /"/) { 
+						$lineArray[$i] =~ s/"//g;
+					}
+				}
+				# join the array back up 
+				$printLine = join('', @lineArray);
+				# push the line back onto the array
+				push (@pythonArray, $printLine);
+			} else { 
+				# if there isn't a $ inside the print statement
+				push (@pythonArray, $line);
+			}
+		# if it's none of the above cases
+		} else { 
+			push (@pythonArray, $line);
+		}
+	}
 
-
-
-#	print "Variables changed\n\n"; 
+	print "Variables changed\n\n"; 
 }
 
 foreach my $file ($ARGV[0]) { 
@@ -76,9 +127,9 @@ foreach my $file ($ARGV[0]) {
 	}
 	close IN;
 
-#	print "Start File Array: \n";
-#	print @perlFile;
-#	print "End File Array\n\n";
+	print "Start File Array: \n";
+	print @perlFile;
+	print "End File Array\n\n";
 
 	my $newFile .= $file;
 	$newFile =~ s/\..*/.py/;
@@ -88,10 +139,15 @@ foreach my $file ($ARGV[0]) {
 	arrayCopy;
 	removeSemiColons(@perlFile);
 	arrayCopy;
+	removeNewLines(@perlFile);
+	arrayCopy;
+	changeVariables(@perlFile);
+	arrayCopy;
 
-#	print "\nStart Python Array: \n";
-#	print @perlFile;
-#	print "End Python Array\n\n";
+
+	print "\nStart Python Array: \n";
+	print @perlFile;
+	print "End Python Array\n\n";
 
 	# prints out to the filehandle
 	foreach my $line (@perlFile) { 

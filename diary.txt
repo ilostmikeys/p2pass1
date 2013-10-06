@@ -28,5 +28,5 @@ DATE	START	END		ACTIVITY		COMMENTS
 4/10	17:45	18:00	Coding			Devised a way to convert print $variableName
 4/10	22:00	23:40	Coding			Rewrote array handling to use pushing and shifting
 5/10	23:00	23:30	Coding			Fixed script to test outputs
-
+7/10	2:00			Coding&Debug	Add case to address variables and arithmetic
 
