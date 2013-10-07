@@ -1,3 +1,4 @@
-#!/usr/bin/python
-one = 1;
-print one;
+#!/usr/bin/python 
+
+one = 1
+print(one)

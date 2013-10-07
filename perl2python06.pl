@@ -62,9 +62,6 @@ sub removeNewLines {
 		} elsif ($line =~ /\\n"$/) { 
 			$line =~ s/\\n"$/"/;
 			push (@pythonArray, $line);
-		} elsif ($line =~ /\\n\)$/) { 
-	        $line =~ s/\\n\)$/)/;
-            push (@pythonArray, $line);
 		} else { 
 			push (@pythonArray, $line);
 		}
@@ -132,14 +129,14 @@ sub changePrints {
 	print "Changed prints\n\n";
 }
 
-sub removeTabsWhiteSpace { 
+sub removeTabs { 
 	print "Removing tabs...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
 		my $line = shift @file;
-		if ($line =~ /^\s+/) { 
-			$line =~ s/^\s+//g;
+		if ($line =~ /^\t/) { 
+			$line =~ s/^\t//g;
 			push(@pythonArray, $line);
 		} else { 
 			push(@pythonArray, $line);
@@ -152,63 +149,67 @@ sub removeTabsWhiteSpace {
 sub changeIfs { 
 	print "Changing ifs...\n";
 
-    my @file = @_;
-    while (@file > 0) { 
-        my $line = shift @file;
-        if ($line =~ /if/) { 
-            my @lineArray = split (' ', $line);
-            foreach my $i (0..$#lineArray) { 
-                if ($lineArray[$i] =~ /\(|\)/) { 
-                    $lineArray[$i] =~ s/\(|\)//;
-                }
-                if ($lineArray[$i] =~ /\{$/) { 
-                    $lineArray[$i] =~ s/\{$/:/;
-                }
-            }
-            $line = join (' ', @lineArray);
-            push (@pythonArray, $line);
-            $line = shift @file;
-            while ($line !~ /\}/) { 
-                $line =~ s/^/\n\t/;
-                push (@pythonArray, $line);
-                $line = shift @file;
-            }
-        } else { 
-            push (@pythonArray, $line);
-        }
-    }
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
+		if ($line =~ /if/) { 
+			my @lineArray = split(' ', $line);
+			foreach my $i (0..$#lineArray) { 
+				if ($lineArray[$i] =~ /\(|\)/) { 
+					$lineArray[$i] =~ s/\(|\)//g;
+				}
+				if ($lineArray[$i] =~ /\{/) { 
+					$lineArray[$i] =~ s/\{/:\n/g;
+				}
+			} 
+			$line = join(' ', @lineArray);
+			push (@pythonArray, $line);
+			$line = shift @file;
+			$line =~ s/$/\n/;
+			while ($line !~ /\}/) { 
+				$line =~ s//\t/;
+				push (@pythonArray, $line);
+				$line = shift @file;
+			}
+		} else { 
+			push (@pythonArray, $line);
+		}
+	} 
+
 	print "Changed ifs\n\n";
 }
 
-sub changeWhiles { 
+sub changeWhile { 
 	print "Changing whiles...\n";
 
-    my @file = @_;
-    while (@file > 0) { 
-        my $line = shift @file;
-        if ($line =~ /while/) { 
-            my @lineArray = split (' ', $line);
-            foreach my $i (0..$#lineArray) { 
-                if ($lineArray[$i] =~ /\(|\)/) { 
-                    $lineArray[$i] =~ s/\(|\)//;
-                }
-                if ($lineArray[$i] =~ /\{$/) { 
-                    $lineArray[$i] =~ s/\{$/:/;
-                }
-            }
-            $line = join (' ', @lineArray);
-            push (@pythonArray, $line);
-            $line = shift @file;
-            while ($line !~ /\}/) { 
-                $line =~ s/^/\n\t/;
-                push (@pythonArray, $line);
-                $line = shift @file;
-            }
-        } else { 
-            push (@pythonArray, $line);
-        }
-    }
-	print "Changed whiles\n\n";
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
+		if ($line =~ /while/) { 
+			my @lineArray = split(' ', $line);
+			foreach my $i (0..$#lineArray) { 
+				if ($lineArray[$i] =~ /\(|\)/) { 
+					$lineArray[$i] =~ s/\(|\)//g;
+				}
+				if ($lineArray[$i] =~ /\{/) { 
+					$lineArray[$i] =~ s/\{/:\n/g;
+				}
+			} 
+			$line = join(' ', @lineArray);
+			push (@pythonArray, $line);
+			$line = shift @file;
+			$line =~ s/$/\n/;
+			while ($line !~ /\}/) { 
+				$line =~ s/^/\t/;
+				push (@pythonArray, $line);
+				$line = shift @file;
+			}
+		} else { 
+			push (@pythonArray, $line);
+		}
+	}
+
+	print "Changed whiles\n";
 }
 
 foreach my $file ($ARGV[0]) { 
@@ -225,19 +226,18 @@ foreach my $file ($ARGV[0]) {
 
 	changeHashbang(@perlFile);
 	arrayCopy;
-	# have to remove semicolons before newlines because of regex
+	removeTabs(@perlFile);
+	arrayCopy;
+	print @perlFile;
 	removeSemiColons(@perlFile);
 	arrayCopy;
 	removeNewLines(@perlFile);
-	arrayCopy;	
-	removeTabsWhiteSpace(@perlFile);
-	arrayCopy;
-	print @perlFile;
-	changePrints(@perlFile);
 	arrayCopy;
 	changeIfs(@perlFile);
 	arrayCopy;
-	changeWhiles(@perlFile);
+	changeWhile(@perlFile);
+	arrayCopy;
+	changePrints(@perlFile);
 	arrayCopy;
 	changeVariables(@perlFile);
 	arrayCopy;
