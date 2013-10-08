@@ -101,20 +101,20 @@ sub changePrints {
 			if ($line =~ /\$/) { 
 				# save into a new variable for editing (might be unneccessary)
 				my $varPrint .= $line;
-				# we split the line so that we can replace the " and insert ()
+				# we split the line so that we can replace the $ and insert (
 				my @lineArray = split (' ', $varPrint);
 				# traverse the array
 				foreach my $i (0..$#lineArray) { 
 					# we look for $ and replace it with a (
 					if ($lineArray[$i] =~ /\$/) { 
-						$lineArray[$i] =~ s/\$/(/;
+						$lineArray[$i] =~ s/\$/\(/;
 						# splice the array at the point +1 after we find the $
 						# and then add a )
 						splice @lineArray, $i+1, 0, ')';
 					} 
 					# replaces all " with nothing
 					if ($lineArray[$i] =~ /"$/) { 
-					    #print "LINE HERE: $lineArray[$i]\n";
+					    print "LINE HERE: $lineArray[$i]\n";
 						$lineArray[$i] =~ s/"$//g;
 					}
 				}
@@ -122,11 +122,24 @@ sub changePrints {
 				$varPrint = join(' ', @lineArray);
 				# push the line back onto the array
 				$varPrint =~ s/$/\n/;
-				push (@pythonArray, $varPrint);
+			#	push (@pythonArray, $varPrint);
+				my $count = 0;
+				if ($varPrint =~ /"/) { 
+				    $count++;
+				    $varPrint =~ s/"//g;
+				    #while ($count % 2 != 0) { 
+				    #    $varPrint =~ s/$/"/;
+				    #    $count++;
+				    #}
+                    print "VarPrint: $varPrint\n";
+                    push(@pythonArray, $varPrint)
+				}
 			} else { 
 				push (@pythonArray, $line);
 			}
-		} else { 
+		} elsif ($line =~ /print/ && $line =~ /"/) { 
+        	print "HERE\n";
+        } else {  
 			push (@pythonArray, $line);
 		}
 	}
@@ -271,11 +284,12 @@ foreach my $file ($ARGV[0]) {
 	arrayCopy;
 	removeNewLines(@perlFile);
 	arrayCopy;
+	print @perlFile;
+	changePrints(@perlFile);
+	arrayCopy;
 	removeWhiteSpace(@perlFile);
 	arrayCopy;
 	# prints have to be changed before all variables noted by $ are removed
-	changePrints(@perlFile);
-	arrayCopy;
 	changeIfs(@perlFile);
 	arrayCopy;
 	changeWhiles(@perlFile);
@@ -284,7 +298,6 @@ foreach my $file ($ARGV[0]) {
 	arrayCopy;
 	changeVariables(@perlFile);
 	arrayCopy;
-	print @perlFile;
 
 	print "\nStart Python Array: \n";
 	print @perlFile;
