@@ -62,9 +62,6 @@ sub removeNewLines {
 		} elsif ($line =~ /\\n"$/) { 
 			$line =~ s/\\n"$/"/;
 			push (@pythonArray, $line);
-		} elsif ($line =~ /\\n\)$/) { 
-	        $line =~ s/\\n\)$/)/;
-            push (@pythonArray, $line);
 		} else { 
 			push (@pythonArray, $line);
 		}
@@ -72,7 +69,6 @@ sub removeNewLines {
 	print "Removed new lines...\n\n";
 }
 
-# just removes the $ from variables 
 sub changeVariables { 
 	print "Changing Variables...\n";
 	
@@ -90,7 +86,6 @@ sub changeVariables {
 	print "Variables changed\n\n"; 
 }
 
-# changes prints to python prints, without \n, brackets for variables
 sub changePrints { 
 	print "Changing prints...\n";
 	
@@ -113,14 +108,14 @@ sub changePrints {
 						splice @lineArray, $i+1, 0, ')';
 					} 
 					# replaces all " with nothing
-					if ($lineArray[$i] =~ /"$/) { 
-					    #print "LINE HERE: $lineArray[$i]\n";
-						$lineArray[$i] =~ s/"$//g;
+					if ($lineArray[$i] =~ /"/) { 
+						$lineArray[$i] =~ s/"//g;
 					}
 				}
 				# join the array back up 
-				$varPrint = join(' ', @lineArray);
+				$varPrint = join('', @lineArray);
 				# push the line back onto the array
+#				$varPrint =~ s/^/\t/;
 				$varPrint =~ s/$/\n/;
 				push (@pythonArray, $varPrint);
 			} else { 
@@ -134,122 +129,87 @@ sub changePrints {
 	print "Changed prints\n\n";
 }
 
-# removes all types of white space at the beginning of lines
-sub removeWhiteSpace { 
-	print "Removing white space...\n";
+sub removeTabs { 
+	print "Removing tabs...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
 		my $line = shift @file;
-		if ($line =~ /^\s+/) { 
-			$line =~ s/^\s+//g;
+		if ($line =~ /^\t/) { 
+			$line =~ s/^\t//g;
 			push(@pythonArray, $line);
 		} else { 
 			push(@pythonArray, $line);
 		}
 	}
-	print "Removed white space\n";
+	
+	print "Removed tabs\n";
 }
 
-# changes perl ifs to pythons ifs with : and indentation
-	# also accounts for < <= > >= != == 
 sub changeIfs { 
 	print "Changing ifs...\n";
 
-    my @file = @_;
-    while (@file > 0) { 
-        my $line = shift @file;
-        if ($line =~ /if/) { 
-            my @lineArray = split (' ', $line);
-            foreach my $i (0..$#lineArray) { 
-                if ($lineArray[$i] =~ /\(|\)/) { 
-                    $lineArray[$i] =~ s/\(|\)//;
-                }
-                if ($lineArray[$i] =~ /\{$/) { 
-                    $lineArray[$i] =~ s/\{$/:/;
-                }
-            }
-            $line = join (' ', @lineArray);
-            push (@pythonArray, $line);
-            $line = shift @file;
-            while ($line !~ /\}/) { 
-                $line =~ s/^/\n\t/;
-                push (@pythonArray, $line);
-                $line = shift @file;
-            }
-        } else { 
-            push (@pythonArray, $line);
-        }
-    }
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
+		if ($line =~ /if/) { 
+			my @lineArray = split(' ', $line);
+			foreach my $i (0..$#lineArray) { 
+				if ($lineArray[$i] =~ /\(|\)/) { 
+					$lineArray[$i] =~ s/\(|\)//g;
+				}
+				if ($lineArray[$i] =~ /\{/) { 
+					$lineArray[$i] =~ s/\{/:\n/g;
+				}
+			} 
+			$line = join(' ', @lineArray);
+			push (@pythonArray, $line);
+			$line = shift @file;
+			$line =~ s/$/\n/;
+			while ($line !~ /\}/) { 
+				$line =~ s//\t/;
+				push (@pythonArray, $line);
+				$line = shift @file;
+			}
+		} else { 
+			push (@pythonArray, $line);
+		}
+	} 
+
 	print "Changed ifs\n\n";
 }
 
-# changes perl ifs to pythons ifs with : and indentation
-	# also accounts for < <= > >= != ==
-sub changeWhiles { 
+sub changeWhile { 
 	print "Changing whiles...\n";
-
-    my @file = @_;
-    while (@file > 0) { 
-        my $line = shift @file;
-        if ($line =~ /while/) { 
-            my @lineArray = split (' ', $line);
-            foreach my $i (0..$#lineArray) { 
-                if ($lineArray[$i] =~ /\(|\)/) { 
-                    $lineArray[$i] =~ s/\(|\)//;
-                }
-                if ($lineArray[$i] =~ /\{$/) { 
-                    $lineArray[$i] =~ s/\{$/:/;
-                }
-            }
-            $line = join (' ', @lineArray);
-            push (@pythonArray, $line);
-            $line = shift @file;
-            while ($line !~ /\}/) { 
-                $line =~ s/^/\n\t/;
-                push (@pythonArray, $line);
-                $line = shift @file;
-            }
-        } else { 
-            push (@pythonArray, $line);
-        }
-    }
-	print "Changed whiles\n\n";
-}
-
-sub changeFors { 
-    print "Changing fors...\n";
-    
-    my @file = @_;
-    while (@file > 0) { 
-        my $line = shift @file;
-        if ($line =~ /for/) { 
-            
-        }
-    }
-    
-    print "Changed fors.\n";
-}
-
-sub changeLogicalOperators { 
-	print "Changing logical operators...\n";
 
 	my @file = @_;
 	while (@file > 0) { 
 		my $line = shift @file;
-		if ($line =~ /\&\&/) { 
-			print "LINEHERE: $line\n";
-			$line =~ s/\&\&/and/g;
+		if ($line =~ /while/) { 
+			my @lineArray = split(' ', $line);
+			foreach my $i (0..$#lineArray) { 
+				if ($lineArray[$i] =~ /\(|\)/) { 
+					$lineArray[$i] =~ s/\(|\)//g;
+				}
+				if ($lineArray[$i] =~ /\{/) { 
+					$lineArray[$i] =~ s/\{/:\n/g;
+				}
+			} 
+			$line = join(' ', @lineArray);
 			push (@pythonArray, $line);
-		} elsif ($line =~ /\|\|/) { 
-			$line =~ s/\|\|/or/g;
-			push (@pythonArray, $line);
+			$line = shift @file;
+			$line =~ s/$/\n/;
+			while ($line !~ /\}/) { 
+				$line =~ s/^/\t/;
+				push (@pythonArray, $line);
+				$line = shift @file;
+			}
 		} else { 
 			push (@pythonArray, $line);
 		}
 	}
 
-	print "Changed logical operators\n";
+	print "Changed whiles\n";
 }
 
 foreach my $file ($ARGV[0]) { 
@@ -266,25 +226,22 @@ foreach my $file ($ARGV[0]) {
 
 	changeHashbang(@perlFile);
 	arrayCopy;
-	# have to remove semicolons before newlines because of regex
+	removeTabs(@perlFile);
+	arrayCopy;
+	print @perlFile;
 	removeSemiColons(@perlFile);
 	arrayCopy;
 	removeNewLines(@perlFile);
 	arrayCopy;
-	removeWhiteSpace(@perlFile);
-	arrayCopy;
-	# prints have to be changed before all variables noted by $ are removed
-	changePrints(@perlFile);
-	arrayCopy;
 	changeIfs(@perlFile);
 	arrayCopy;
-	changeWhiles(@perlFile);
+	changeWhile(@perlFile);
 	arrayCopy;
-	changeLogicalOperators(@perlFile);
+	changePrints(@perlFile);
 	arrayCopy;
 	changeVariables(@perlFile);
 	arrayCopy;
-	print @perlFile;
+
 
 	print "\nStart Python Array: \n";
 	print @perlFile;
@@ -298,6 +255,14 @@ foreach my $file ($ARGV[0]) {
 	close OUT;
 
 }
+
+
+
+
+
+
+
+
 
 
 

@@ -35,4 +35,8 @@ DATE	START	END		ACTIVITY		COMMENTS
 										Addressed multiple if blocks
 										Wrote functional subroutine to change whiles
 											and while blocks
-										
+8/10	17:40			Coding			Writing subroutine to address logical 	
+											operators
+								
+
+
