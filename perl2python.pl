@@ -117,7 +117,6 @@ sub changePrints {
 					} 
 					# replaces all " with nothing
 					if ($lineArray[$i] =~ /"$/) { 
-					    print "LINE HERE: $lineArray[$i]\n";
 						$lineArray[$i] =~ s/"$//g;
 					}
 				}
@@ -134,7 +133,6 @@ sub changePrints {
 				    #    $varPrint =~ s/$/"/;
 				    #    $count++;
 				    #}
-                    print "VarPrint: $varPrint\n";
                     push(@pythonArray, $varPrint)
 				}
 			} else { 
@@ -237,49 +235,63 @@ sub changeWhiles {
 	# only works if the array has already been predeclared
 		# eg @array = (0, 1, 2, 3);
 	# and if the array name is used within the intial for loop
-	    # eg for ($n = 0; $n < $#array; $n = $n + 1)
+		# eg for ($n = 0; $n < $#array; $n = $n + 1)
 	# and if the for loop only increases by one.
 sub changeFors { 
-    print "Changing fors...\n";
+	print "Changing fors...\n";
     
-    my @file = @_;
-    while (@file > 0) { 
-        my $line = shift @file;
-        if ($line =~ /for/) { 
-			my @forLine = split (' ', $line);
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
 			my $variable = ""; 
 			my $arrayName = "";
-			my $newForLine = "";
+			my $newForLine = "";	
+			if ($line =~ /\bfor\b/) { 
+			my @forLine = split (' ', $line);
 			# if the second array element contains the a dollar sign hence a variable
 			if ($forLine[1] =~ /\$/) { 
 				$variable = $forLine[1];
 				# save the variable name into a variable
 				$variable =~ s/\(\$//;
-			} else { 
-				$line =~ s/$/#/;
-			}
-			foreach my $word (@forLine) { 
-				if ($word =~ /^\$#/) { 
-					$arrayName = $word;
-					$arrayName =~ s/^\$#//;
-					$arrayName =~ s/\;$//;
-				}	
+				foreach my $word (@forLine) { 
+					if ($word =~ /^\$#/) { 
+						$arrayName = $word;
+						$arrayName =~ s/^\$#//;
+						$arrayName =~ s/\;$//;
+					}	
+				}
 			}
 			$newForLine = "for $variable in $arrayName: ";
-			print "NEWFORLINE: $newForLine";
 			push (@pythonArray, $newForLine);
 			$line = shift @file;
-            while ($line !~ /\}/) { 
-                $line =~ s/^/\n\t/;
-                push (@pythonArray, $line);
-                $line = shift @file;
-            }
-			
-        } else { 
-            push (@pythonArray, $line);
-        }
-    }
-    print "Changed fors.\n";
+			while ($line !~ /\}/) { 
+				$line =~ s/^/\n\t/;
+				push (@pythonArray, $line);
+				$line = shift @file;
+			}
+		} elsif ($line =~ /\bforeach\b/) { 
+			my @foreachLine = split (' ', $line);
+			if ($foreachLine[1] =~ /\$/) { 
+				$variable = $foreachLine[1];
+				$variable =~ s/\$//;
+			} 
+			if ($foreachLine[2] =~ /\(@/) { 
+				$arrayName = $foreachLine[2];
+				$arrayName =~ s/\(@//g;
+				$arrayName =~ s/\)//g;
+			}
+			my $newForeachLine = "for $variable in $arrayName: ";
+			push (@pythonArray, $newForeachLine);
+			while ($line !~ /\}/) {
+				$line =~ s/^/\n\t/;
+				push (@pythonArray, $line);
+				$line = shift @file;
+			}
+		} else { 
+			push (@pythonArray, $line);
+		}
+	}
+	print "Changed fors.\n";
 }
 
 # addresses the use of && and || 
@@ -290,7 +302,6 @@ sub changeLogicalOperators {
 	while (@file > 0) { 
 		my $line = shift @file;
 		if ($line =~ /\&\&/) { 
-			print "LINEHERE: $line\n";
 			$line =~ s/\&\&/and/g;
 			push (@pythonArray, $line);
 		} elsif ($line =~ /\|\|/) { 
@@ -302,6 +313,22 @@ sub changeLogicalOperators {
 	}
 
 	print "Changed logical operators\n";
+}
+
+# this subroutine should change all other commands and their lines into # lines
+sub others { 
+
+	my @file = @_;
+	while (@file > 0) { 
+		my $line = shift @file;
+		if ($line !~ /for/ or $line !~ /if/ or $line !~ /while/ or 
+		    $line !~ /print/ or $line !~ /$/ or $line !~ /\&\&/ or
+			$line !~ /\|\|/) { 	
+				$line =~ s/\$/#/;
+				push (@pythonArray, $line);
+		}
+	}
+
 }
 
 foreach my $file ($ARGV[0]) { 
@@ -323,8 +350,6 @@ foreach my $file ($ARGV[0]) {
 	arrayCopy;
 	removeNewLines(@perlFile);
 	arrayCopy;
-	changePrints(@perlFile);
-	arrayCopy;
 	removeWhiteSpace(@perlFile);
 	arrayCopy;
 	# prints have to be changed before all variables noted by $ are removed
@@ -338,6 +363,11 @@ foreach my $file ($ARGV[0]) {
 	arrayCopy;
 	changeVariables(@perlFile);
 	arrayCopy;
+	changePrints(@perlFile);
+	arrayCopy;
+	others(@perlFile);
+	arrayCopy;
+
 
 	print "\nStart Python Array: \n";
 	print @perlFile;
