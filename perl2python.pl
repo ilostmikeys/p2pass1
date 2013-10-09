@@ -82,6 +82,9 @@ sub changeVariables {
 		if ($line =~ /\$/) { 
 			$line =~ s/\$//g;
 			push (@pythonArray, $line);
+		} elsif ($line =~ /@/) { 
+		    $line =~ s/@//g;
+		    push (@pythonArray, $line);
 		} else { 
 			push (@pythonArray, $line);
 		}
@@ -197,7 +200,7 @@ sub changeIfs {
 	print "Changed ifs\n\n";
 }
 
-# changes perl ifs to pythons ifs with : and indentation
+# changes perl whiless to pythons whiles with : and indentation
 	# also accounts for < <= > >= != ==
 sub changeWhiles { 
 	print "Changing whiles...\n";
@@ -230,6 +233,12 @@ sub changeWhiles {
 	print "Changed whiles\n\n";
 }
 
+# subroutine which changes the for loops.
+	# only works if the array has already been predeclared
+		# eg @array = (0, 1, 2, 3);
+	# and if the array name is used within the intial for loop
+	    # eg for ($n = 0; $n < $#array; $n = $n + 1)
+	# and if the for loop only increases by one.
 sub changeFors { 
     print "Changing fors...\n";
     
@@ -237,13 +246,43 @@ sub changeFors {
     while (@file > 0) { 
         my $line = shift @file;
         if ($line =~ /for/) { 
-            
+			my @forLine = split (' ', $line);
+			my $variable = ""; 
+			my $arrayName = "";
+			my $newForLine = "";
+			# if the second array element contains the a dollar sign hence a variable
+			if ($forLine[1] =~ /\$/) { 
+				$variable = $forLine[1];
+				# save the variable name into a variable
+				$variable =~ s/\(\$//;
+			} else { 
+				$line =~ s/$/#/;
+			}
+			foreach my $word (@forLine) { 
+				if ($word =~ /^\$#/) { 
+					$arrayName = $word;
+					$arrayName =~ s/^\$#//;
+					$arrayName =~ s/\;$//;
+				}	
+			}
+			$newForLine = "for $variable in $arrayName: ";
+			print "NEWFORLINE: $newForLine";
+			push (@pythonArray, $newForLine);
+			$line = shift @file;
+            while ($line !~ /\}/) { 
+                $line =~ s/^/\n\t/;
+                push (@pythonArray, $line);
+                $line = shift @file;
+            }
+			
+        } else { 
+            push (@pythonArray, $line);
         }
     }
-    
     print "Changed fors.\n";
 }
 
+# addresses the use of && and || 
 sub changeLogicalOperators { 
 	print "Changing logical operators...\n";
 
@@ -284,7 +323,6 @@ foreach my $file ($ARGV[0]) {
 	arrayCopy;
 	removeNewLines(@perlFile);
 	arrayCopy;
-	print @perlFile;
 	changePrints(@perlFile);
 	arrayCopy;
 	removeWhiteSpace(@perlFile);
@@ -293,6 +331,8 @@ foreach my $file ($ARGV[0]) {
 	changeIfs(@perlFile);
 	arrayCopy;
 	changeWhiles(@perlFile);
+	arrayCopy;
+	changeFors(@perlFile);
 	arrayCopy;
 	changeLogicalOperators(@perlFile);
 	arrayCopy;

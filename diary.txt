@@ -26,7 +26,8 @@ DATE	START	END		ACTIVITY		COMMENTS
 										Began writing a script to test output	
 										variable changer subroutine written and tested
 4/10	17:45	18:00	Coding			Devised a way to convert print $variableName
-4/10	22:00	23:40	Coding			Rewrote array handling to use pushing and shifting
+4/10	22:00	23:40	Coding			Rewrote array handling to use pushing and 	
+											shifting
 5/10	23:00	23:30	Coding			Fixed script to test outputs
 7/10	2:00	5:00	Coding&Debug	Added subroutine to address variables and
 											arithmetic
@@ -35,8 +36,8 @@ DATE	START	END		ACTIVITY		COMMENTS
 										Addressed multiple if blocks
 										Wrote functional subroutine to change whiles
 											and while blocks
-8/10	17:40			Coding			Writing subroutine to address logical 	
+8/10	17:40	18:30	Coding			Writing subroutine to address logical 	
 											operators
-								
+9/10	14:00	15:30	Coding			Wrote subroutine to address basic for loops
 
 
